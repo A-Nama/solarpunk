@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 from globe_data import fetch_globe_data
 from game_logic import (
@@ -16,7 +14,7 @@ st.markdown(
     """
     <style>
     body {
-        background-image: url('https://c4.wallpaperflare.com/wallpaper/821/769/300/spirited-away-studio-ghibli-anime-wallpaper-preview.jpg'); /* Replace with your Solarpunk background image URL */
+        background-image: url('https://your-solarpunk-background-image-url.com'); /* Replace with your Solarpunk background image URL */
         background-size: cover;
         color: #2c5f2d;  /* Earthy green font */
     }
@@ -35,7 +33,7 @@ st.markdown(
 )
 
 # Title and Introduction
-st.title("🌞 EcoSphere: Balance of Life - Solarpunk Edition 🌱")
+st.title("🌞 Solarpunk World 🌱")
 st.subheader("Building a Better, Sustainable Future Through Harmony with Nature and Technology")
 
 # Initialize session state for ecosystem
@@ -53,16 +51,22 @@ if 'ecosystem' not in st.session_state:
 st.markdown("### Choose your Eco-Community:")
 plot_type = st.selectbox("Choose your community type", ["Forest Village", "Solar City", "Urban Eco-Hub"], key='plot_selector')
 
+# User input for latitude and longitude
+st.markdown("### Enter your location:")
+latitude = st.number_input("Latitude:", format="%.6f", value=19.9312)  # Default to Kochi
+longitude = st.number_input("Longitude:", format="%.6f", value=76.2673)  
+
 if st.button("Start Game"):
     st.session_state.ecosystem = initialize_ecosystem(plot_type)
     st.session_state.plot_type = plot_type
-    st.success(f"You have selected **{plot_type}**!")
-    st.experimental_rerun()
+    st.success(f"You have selected **{plot_type}**! ")
+    st.rerun()
 
 # Proceed only if the game has started
 if st.session_state.plot_type:
-    # Fetch real-time GLOBE data
-    globe_data = fetch_globe_data(lat=12.9716, lon=77.5946, start_date="2024-10-01", end_date="2024-10-05")  # Example coordinates and dates
+    # Fetch real-time GLOBE data using user-entered location
+    globe_data = fetch_globe_data(lat=latitude, lon=longitude, start_date="2024-10-01", end_date="2024-10-05")
+    
     if globe_data:
         st.write("🌍 Real-time Environmental Data (via GLOBE):", globe_data)
         # Simulate ecosystem changes based on GLOBE data
