@@ -1,16 +1,16 @@
-# game_logic.py
+import requests
+from globe_data import fetch_globe_data  # Import the fetch_globe_data method
 
 def initialize_ecosystem(plot_type):
     """
-    Initialize the ecosystem parameters based on the selected plot type.
+    Initialize the ecosystem parameters based on the type of plot chosen.
     
     Parameters:
-        plot_type (str): The type of eco-community selected by the player.
+        plot_type (str): Type of the plot (e.g., "Forest Village", "Solar City", "Urban Eco-Hub").
     
     Returns:
-        dict: A dictionary containing initial ecosystem parameters.
+        dict: Initial ecosystem parameters.
     """
-    # Base values for all communities
     ecosystem = {
         'vegetation': 50,
         'water': 50,
@@ -41,51 +41,54 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
     
     Parameters:
         ecosystem (dict): Current state of the ecosystem.
-        globe_data (dict): Real-time environmental data fetched from GLOBE API.
+        globe_data (dict): Environmental data fetched from the GLOBE API.
     
     Returns:
         dict: Updated ecosystem parameters.
     """
-    # Example: Adjust vegetation and water based on air temperature
-    if globe_data and 'air_temperature' in globe_data and globe_data['air_temperature']:
-        # Use the latest air temperature data
+    # Check for valid globe_data input before processing
+    if not globe_data:
+        return ecosystem  # Return the current ecosystem if no globe data is provided
+
+    # Adjust vegetation and water based on air temperature
+    if 'air_temperature' in globe_data and globe_data['air_temperature']:
         air_temp = globe_data['air_temperature'][-1]  # Assuming latest is last
         if air_temp > 35:
-            ecosystem['vegetation'] -= 10  # High temperature reduces vegetation
-            ecosystem['water'] -= 5       # Increased evaporation
-            ecosystem['energy'] += 5      # More energy needed for cooling
+            ecosystem['vegetation'] -= 10
+            ecosystem['water'] -= 5
+            ecosystem['energy'] += 5
         elif air_temp < 15:
-            ecosystem['vegetation'] -= 5   # Cold affects plant growth
-            ecosystem['water'] += 5        # Less evaporation
-            ecosystem['energy'] -= 5       # Less energy needed for cooling
+            ecosystem['vegetation'] -= 5
+            ecosystem['water'] += 5
+            ecosystem['energy'] -= 5
         else:
-            ecosystem['vegetation'] += 5   # Favorable temperatures boost vegetation
-            ecosystem['water'] += 2        # Normal evaporation
-            ecosystem['energy'] += 2       # Normal energy usage
+            ecosystem['vegetation'] += 5
+            ecosystem['water'] += 2
+            ecosystem['energy'] += 2
     
     # Adjust based on precipitation data
-    if globe_data and 'precipitation' in globe_data and globe_data['precipitation']:
+    if 'precipitation' in globe_data and globe_data['precipitation']:
         precipitation = globe_data['precipitation'][-1]  # Latest precipitation
         if precipitation > 100:
-            ecosystem['water'] += 20    # Abundant water
-            ecosystem['sustainability'] += 5  # Improved water management
+            ecosystem['water'] += 20
+            ecosystem['sustainability'] += 5
         elif precipitation < 20:
-            ecosystem['water'] -= 10    # Water scarcity
-            ecosystem['sustainability'] -= 5  # Strain on resources
+            ecosystem['water'] -= 10
+            ecosystem['sustainability'] -= 5
         else:
-            ecosystem['water'] += 5     # Moderate precipitation
-    
+            ecosystem['water'] += 5
+        
     # Adjust based on cloud coverage
-    if globe_data and 'cloud_coverage' in globe_data and globe_data['cloud_coverage']:
+    if 'cloud_coverage' in globe_data and globe_data['cloud_coverage']:
         cloud_cover = globe_data['cloud_coverage'][-1]  # Latest cloud cover
         if cloud_cover > 80:
-            ecosystem['energy'] -= 10  # Less solar energy
+            ecosystem['energy'] -= 10
             ecosystem['sustainability'] -= 5
         elif cloud_cover < 20:
-            ecosystem['energy'] += 10  # More solar energy
+            ecosystem['energy'] += 10
             ecosystem['sustainability'] += 5
         else:
-            ecosystem['energy'] += 2    # Slight variation in energy
+            ecosystem['energy'] += 2
     
     # Ensure parameters stay within 0-100 range
     for key in ecosystem:
@@ -95,102 +98,67 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
 
 def perform_action(ecosystem, action):
     """
-    Update the ecosystem based on the player's action.
+    Perform an action that modifies the ecosystem parameters.
     
     Parameters:
         ecosystem (dict): Current state of the ecosystem.
-        action (str): The action performed by the player.
+        action (str): The action to perform (e.g., "Plant Trees", "Install Solar Panels").
     
     Returns:
-        dict: Updated ecosystem parameters.
+        dict: Updated ecosystem parameters after the action.
     """
     if action == "Plant Trees":
         ecosystem['vegetation'] += 10
-        ecosystem['biodiversity'] += 5
-        ecosystem['sustainability'] += 5
     elif action == "Install Solar Panels":
-        ecosystem['energy'] += 15
-        ecosystem['sustainability'] += 10
+        ecosystem['energy'] += 10
     elif action == "Build Rainwater Harvesting System":
-        ecosystem['water'] += 15
-        ecosystem['sustainability'] += 10
+        ecosystem['water'] += 10
     elif action == "Upgrade to Vertical Gardens":
         ecosystem['vegetation'] += 15
-        ecosystem['biodiversity'] += 10
-        ecosystem['sustainability'] += 10
-    elif action == "Implement Wind Turbines":
-        ecosystem['energy'] += 20
-        ecosystem['sustainability'] += 15
-    elif action == "Establish Community Gardens":
-        ecosystem['vegetation'] += 10
-        ecosystem['biodiversity'] += 5
         ecosystem['sustainability'] += 5
-    # Add more actions as needed
-    
-    # Ensure parameters stay within 0-100 range
+    elif action == "Implement Wind Turbines":
+        ecosystem['energy'] += 15
+        ecosystem['sustainability'] += 5
+
+    # Ensure parameters stay within 0-100 range after performing the action
     for key in ecosystem:
         ecosystem[key] = max(0, min(100, ecosystem[key]))
-    
+
     return ecosystem
 
 def calculate_score(ecosystem):
     """
-    Calculate the player's score based on the current state of the ecosystem.
+    Calculate the score based on the current state of the ecosystem.
     
     Parameters:
         ecosystem (dict): Current state of the ecosystem.
     
     Returns:
-        int: Calculated score.
+        int: Score calculated based on ecosystem parameters.
     """
-    # Example scoring: Sum of all parameters
-    score = ecosystem['vegetation'] + ecosystem['water'] + ecosystem['energy'] + ecosystem['biodiversity'] + ecosystem['sustainability']
+    score = (
+        ecosystem['vegetation'] +
+        ecosystem['water'] +
+        ecosystem['energy'] +
+        ecosystem['biodiversity'] +
+        ecosystem['sustainability']
+    ) // 5  # Average score
     return score
 
 def get_ecosystem_status(ecosystem):
     """
-    Provide a status report of the ecosystem based on its parameters.
+    Get a textual status of the ecosystem based on its parameters.
     
     Parameters:
         ecosystem (dict): Current state of the ecosystem.
     
     Returns:
-        str: Status message.
+        str: Status message indicating the overall health of the ecosystem.
     """
-    status = []
-    if ecosystem['vegetation'] > 70:
-        status.append("Thriving vegetation")
-    elif ecosystem['vegetation'] < 30:
-        status.append("Vegetation struggling")
+    if ecosystem['sustainability'] > 80:
+        return "Your ecosystem is thriving! 🌟"
+    elif ecosystem['sustainability'] > 50:
+        return "Your ecosystem is doing well. Keep it up! 👍"
     else:
-        status.append("Vegetation stable")
-    
-    if ecosystem['water'] > 70:
-        status.append("Water resources abundant")
-    elif ecosystem['water'] < 30:
-        status.append("Water resources scarce")
-    else:
-        status.append("Water resources stable")
-    
-    if ecosystem['energy'] > 70:
-        status.append("High renewable energy production")
-    elif ecosystem['energy'] < 30:
-        status.append("Low renewable energy production")
-    else:
-        status.append("Renewable energy production stable")
-    
-    if ecosystem['biodiversity'] > 70:
-        status.append("Rich biodiversity")
-    elif ecosystem['biodiversity'] < 30:
-        status.append("Biodiversity declining")
-    else:
-        status.append("Biodiversity stable")
-    
-    if ecosystem['sustainability'] > 70:
-        status.append("Highly sustainable")
-    elif ecosystem['sustainability'] < 30:
-        status.append("Sustainability efforts needed")
-    else:
-        status.append("Sustainability efforts stable")
-    
-    return ", ".join(status)
+        return "Your ecosystem needs attention! ⚠️"
+
