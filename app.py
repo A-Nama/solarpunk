@@ -16,7 +16,7 @@ st.markdown(
     """
     <style>
     body {
-        background-image: url('https://your-solarpunk-background-image-url.com'); /* Replace with your Solarpunk background image URL */
+        background-image: url('https://c4.wallpaperflare.com/wallpaper/821/769/300/spirited-away-studio-ghibli-anime-wallpaper-preview.jpg'); /* Replace with your Solarpunk background image URL */
         background-size: cover;
         color: #2c5f2d;  /* Earthy green font */
     }
