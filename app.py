@@ -18,6 +18,10 @@ st.markdown("""
         right: 10px;
         width: 100px; /* Adjust size if needed */
     }
+    .outlined-text {
+        color: white;
+        text-shadow: 1px 1px 0px black, 1px -1px 0px black, -1px 1px 0px black, -1px -1px 0px black;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -67,17 +71,22 @@ def set_background(plot_type):
     )
 
 # Title and Introduction
-st.title("🌞 Solarpunk World 🌱")
-st.subheader("Building a Better, Sustainable Future Through Harmony with Nature and Technology")
+st.markdown(
+    """
+    <h1 class="outlined-text">🌞 Solarpunk World 🌱</h1>
+    <h2 class="outlined-text">Building a Better, Sustainable Future Through Harmony with Nature and Technology</h2>
+    """,
+    unsafe_allow_html=True
+)
 
 # Display the location input form if the game has not started
 if not st.session_state.game_started:
     # Choose Eco-Community
-    st.markdown("### Choose your Eco-Community:")
+    st.markdown("<h3 class='outlined-text'>Choose your Eco-Community:</h3>", unsafe_allow_html=True)
     plot_type = st.selectbox("Choose your community type", ["Forest Village", "Solar City", "Urban Eco-Hub"], key='plot_selector')
 
     # User input for country code
-    st.markdown("### Enter your country code:")
+    st.markdown("<h3 class='outlined-text'>Enter your country code:</h3>", unsafe_allow_html=True)
     country_code = st.text_input("Enter Country Code", value="USA")  # Default set as USA
 
     # User input for date
@@ -89,7 +98,7 @@ if not st.session_state.game_started:
         st.session_state.ecosystem = initialize_ecosystem(plot_type)
         st.session_state.plot_type = plot_type
         st.session_state.start_date = start_date  # Save start date
-        st.session_state.end_date = end_date #Save end date
+        st.session_state.end_date = end_date # Save end date
         st.session_state.country_code = country_code  # Save country code
         st.session_state.selected_plot_type = plot_type  # Save selected plot type
         st.session_state.game_started = True
@@ -133,11 +142,12 @@ else:
     }
 
     if globe_data:
-        st.write("🌍 Real-time Environmental Data (via GLOBE):", globe_data)
+        st.write("<h3 class='outlined-text'>🌍 Real-time Environmental Data (via GLOBE):</h3>", unsafe_allow_html=True)
+        st.write(globe_data)
         # Simulate ecosystem changes based on GLOBE data
         st.session_state.ecosystem = simulate_solarpunk_ecosystem(st.session_state.ecosystem, globe_data)
     else:
-        st.write("⚠️ Unable to fetch real-time environmental data.")
+        st.write("<h3 class='outlined-text'>⚠️ Unable to fetch real-time environmental data.</h3>", unsafe_allow_html=True)
 
     # Visualize the Solarpunk-themed ecosystem
     plot_solarpunk_ecosystem(
@@ -148,10 +158,10 @@ else:
 
     # Display ecosystem status
     status = get_ecosystem_status(st.session_state.ecosystem)
-    st.markdown(f"**Ecosystem Status:** {status}")
+    st.markdown(f"<h3 class='outlined-text'>Ecosystem Status: {status}</h3>", unsafe_allow_html=True)
 
     # Player Interaction Section
-    st.markdown("#### Actions to improve your ecosystem:")
+    st.markdown("<h3 class='outlined-text'>Actions to improve your ecosystem:</h3>", unsafe_allow_html=True)
 
 # Get the selected plot type from session state
 plot_type = st.session_state.plot_type
@@ -203,10 +213,4 @@ if selected_actions:
             st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[5], plot_type)
             st.success(f"{selected_actions[5]} performed!")
 
-
-    # Calculate and display score
-    score = calculate_score(st.session_state.ecosystem)
-    st.markdown(f"**Your Current Score:** {score}")
-
-    # Display overall status
-    st.markdown(f"**Ecosystem Status:** {status}")
+   
