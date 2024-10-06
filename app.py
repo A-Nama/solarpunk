@@ -10,7 +10,7 @@ from game_logic import (
 from visualization import plot_solarpunk_ecosystem
 
 # CSS to style the page and position the logo
-st.markdown("""
+st.markdown(""" 
     <style>
     .logo {
         position: absolute;
@@ -25,11 +25,12 @@ st.markdown("""
 st.markdown(
     f"""
     <div class="logo">
-        <img src="https://imgur.com/a/2Om93ss" alt="Solarpunk Logo">
+        <img src="https://i.imgur.com/oEyNsnj.jpeg" alt="Solarpunk_Logo">
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 # Initialize session state for ecosystem and game
 if 'ecosystem' not in st.session_state:
