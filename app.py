@@ -78,7 +78,7 @@ if not st.session_state.game_started:
 
     # User input for country code
     st.markdown("### Enter your country code:")
-    country_code = st.text_input("Enter Country Code (e.g., IND)", value="USA")  # Default set as USA
+    country_code = st.text_input("Enter Country Code", value="USA")  # Default set as USA
 
     # User input for date
     start_date = st.date_input("Start Date").strftime("%Y-%m-%d")
@@ -103,34 +103,33 @@ else:
     end_date = st.session_state.end_date
     country_code = st.session_state.country_code
 
-    # Fetch real-time GLOBE data using user-entered country code for air temperature, precipitation, and vegetation
+    ## Fetch real-time GLOBE data using user-entered country code for air temperature, precipitation, and soil pH
     air_temp_data = fetch_globe_data(
-        protocol="air_temp_dailies",
+        protocol="air_temps",  # Updated protocol
         country_code=country_code,
         start_date=start_date,  # Use user-provided start date
         end_date=end_date
     )
-    
+
     precipitation_data = fetch_globe_data(
-        protocol="precipitations",
+        protocol="precipitation_monthlies",  # Updated protocol
         country_code=country_code,
         start_date=start_date,  # Use user-provided start date
         end_date=end_date
     )
 
-    vegetation_data = fetch_globe_data(
-        protocol="vegatation_covers",
+    soil_ph_data = fetch_globe_data(
+        protocol="soil_phs",  # Updated protocol
         country_code=country_code,
         start_date=start_date,  # Use user-provided start date
         end_date=end_date
     )
-
 
     # Combine fetched data into one dictionary
     globe_data = {
         **air_temp_data,
         **precipitation_data,
-        **vegetation_data
+        **soil_ph_data
     }
 
     if globe_data:
@@ -144,7 +143,7 @@ else:
     plot_solarpunk_ecosystem(
         st.session_state.ecosystem['vegetation'],
         st.session_state.ecosystem['water'],
-        st.session_state.ecosystem['energy']
+        st.session_state.ecosystem['weather']
     )
 
     # Display ecosystem status
