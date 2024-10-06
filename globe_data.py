@@ -36,14 +36,15 @@ def fetch_globe_data(start_date, end_date, country_code, protocol):
         data = response.json()
 
         if 'results' in data and data['results']:
-            if protocol == 'air_temp_dailies':
-                return {'air_temperature': [d['measurement']['airTemperature'] for d in data['results'] if 'measurement' in d and 'airTemperature' in d['measurement']]}
-            elif protocol == 'precipitations':
-                return {'precipitation': [d['measurement']['precipitation'] for d in data['results'] if 'measurement' in d and 'precipitation' in d['measurement']]}
-            elif protocol == 'vegatation_covers':
-                return {'vegetation_cover': [d['measurement']['landCover'] for d in data['results'] if 'measurement' in d and 'landCover' in d['measurement']]}
+            if protocol == 'air_temps':
+                return {'air_temperature': [d['data']['airtempsCurrentTemp'] for d in data['results'] if 'data' in d and 'airtempsCurrentTemp' in d['data']]}
+            elif protocol == 'precipitation_monthlies':
+                return {'precipitation': [d['data']['precipitationmonthliesLiquidAccumulationMm'] for d in data['results'] if 'data' in d and 'precipitationmonthliesLiquidAccumulationMm' in d['data']]}
+            elif protocol == 'soil_phs':
+                return {'soil_ph': [d['data']['soilphsPh'] for d in data['results'] if 'data' in d and 'soilphsPh' in d['data']]}
         else:
             return {}
     except requests.RequestException as e:
         print(f"Error fetching data from GLOBE API: {e}")
         return {}
+
