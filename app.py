@@ -51,17 +51,21 @@ if not st.session_state.game_started:
     st.markdown("### Choose your Eco-Community:")
     plot_type = st.selectbox("Choose your community type", ["Forest Village", "Solar City", "Urban Eco-Hub"], key='plot_selector')
 
-    # User input for latitude and longitude
-    st.markdown("### Enter your location:")
-    latitude = st.number_input("Latitude:", format="%.6f", value=19.9312)  # Default to Kochi
-    longitude = st.number_input("Longitude:", format="%.6f", value=76.2673)
+    # User input for country code
+    st.markdown("### Enter your country code:")
+    country_code = st.text_input("Enter Country Code (e.g., IND)", value="IND")  # Default to India
+
+    # User input for date
+    start_date = st.date_input("Start Date").strftime("%Y-%m-%d")
+    end_date = st.date_input("End Date").strftime("%Y-%m-%d")
 
     if st.button("Start Game"):
         # Initialize the ecosystem and start the game
         st.session_state.ecosystem = initialize_ecosystem(plot_type)
         st.session_state.plot_type = plot_type
-        st.session_state.latitude = latitude
-        st.session_state.longitude = longitude
+        st.session_state.start_date = start_date  # Save start date
+        st.session_state.end_date = end_date
+        st.session_state.country_code = country_code  # Save country code
         st.session_state.selected_plot_type = plot_type  # Save selected plot type
         st.session_state.game_started = True
         st.rerun()  # Clear page and simulate "new page"
@@ -69,30 +73,33 @@ else:
     # Proceed with the game and display the data visualization
     set_background(st.session_state.selected_plot_type)
 
-    # Fetch real-time GLOBE data using user-entered location for air temperature, precipitation, and vegetation
+    # Retrieve the saved start date and country code
+    start_date = st.session_state.start_date
+    end_date = st.session_state.end_date
+    country_code = st.session_state.country_code
+
+    # Fetch real-time GLOBE data using user-entered country code for air temperature, precipitation, and vegetation
     air_temp_data = fetch_globe_data(
-        lat=st.session_state.latitude,
-        lon=st.session_state.longitude,
-        start_date="2024-10-01", 
-        end_date="2024-10-05",
-        protocol="air_temp_dailies"
+        protocol="air_temp_dailies",
+        country_code=country_code,
+        start_date=start_date,  # Use user-provided start date
+        end_date=end_date
     )
     
     precipitation_data = fetch_globe_data(
-        lat=st.session_state.latitude,
-        lon=st.session_state.longitude,
-        start_date="2024-10-01", 
-        end_date="2024-10-05",
-        protocol="precipitations"
+        protocol="precipitations",
+        country_code=country_code,
+        start_date=start_date,  # Use user-provided start date
+        end_date=end_date
     )
 
     vegetation_data = fetch_globe_data(
-        lat=st.session_state.latitude,
-        lon=st.session_state.longitude,
-        start_date="2024-10-01", 
-        end_date="2024-10-05",
-        protocol="vegetation_covers"
+        protocol="vegatation_covers",
+        country_code=country_code,
+        start_date=start_date,  # Use user-provided start date
+        end_date=end_date
     )
+
 
     # Combine fetched data into one dictionary
     globe_data = {
