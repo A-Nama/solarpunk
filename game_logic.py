@@ -7,7 +7,7 @@ def initialize_ecosystem(plot_type):
         'water': 50,
         'energy': 50,
         'biodiversity': 50,
-        'sustainability': 50
+        'water': 50
     }
     
     # Adjust initial parameters based on plot type
@@ -20,7 +20,7 @@ def initialize_ecosystem(plot_type):
         ecosystem['water'] -= 10
         ecosystem['vegetation'] -= 10
     elif plot_type == "Urban Eco-Hub":
-        ecosystem['sustainability'] += 15
+        ecosystem['water'] += 15
         ecosystem['energy'] += 10
         ecosystem['water'] += 5
     
@@ -62,15 +62,15 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
             ecosystem['water'] += 2
             ecosystem['energy'] += 2
 
-    # Adjust water and sustainability based on precipitation data
+    # Adjust water and water based on precipitation data
     if precipitation_data and 'measurements' in precipitation_data:
         precipitation = precipitation_data['measurements'][-1]  # Use the latest precipitation data
         if precipitation > 100:
             ecosystem['water'] += 20
-            ecosystem['sustainability'] += 5
+            ecosystem['water'] += 5
         elif precipitation < 20:
             ecosystem['water'] -= 10
-            ecosystem['sustainability'] -= 5
+            ecosystem['water'] -= 5
         else:
             ecosystem['water'] += 5
 
@@ -91,37 +91,58 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
     return ecosystem
 
 
-def perform_action(ecosystem, action):
+def perform_action(ecosystem, action, plot_type):
     """
-    Perform an action that modifies the ecosystem parameters.
-    
+    Perform an action that modifies the ecosystem parameters based on the plot type.
+
     Parameters:
         ecosystem (dict): Current state of the ecosystem.
-        action (str): The action to perform (e.g., "Plant Trees", "Install Solar Panels").
-    
+        action (str): The action to perform (e.g., "Install Solar Panels", "Plant Trees").
+        plot_type (str): The type of eco-community selected (e.g., "Forest Village", "Solar City", "Urban Eco-Hub").
+
     Returns:
         dict: Updated ecosystem parameters after the action.
     """
-    if action == "Plant Trees":
-        ecosystem['vegetation'] += 10
-    elif action == "Install Solar Panels":
-        ecosystem['energy'] += 10
-    elif action == "Build Rainwater Harvesting System":
-        ecosystem['water'] += 10
-    elif action == "Upgrade to Vertical Gardens":
-        ecosystem['vegetation'] += 15
-        ecosystem['sustainability'] += 5
-    elif action == "Implement Wind Turbines":
-        ecosystem['energy'] += 15
-        ecosystem['sustainability'] += 5
+    # Define the impact of actions for each community
+    community_impacts = {
+        "Forest Village": {
+            "🌱 Organic farming": {"vegetation": 10},
+            "🍃 Create Biogas from Compost": {"vegetation": 10},
+            "💧 Build Rainwater Harvesting System": {"water": 10},
+            "🚰 Reuse grey water": {"water": 10},
+            "♻️ Use renewable energy": {"energy": 10},
+            "🚲 Walk or Cycle as much as possible": {"energy": 10},
+        },
+        "Solar City": {
+            "⚡ Install Solar Panels": {"energy": 10},
+            "🔋 Use Hydrogen as fuel": {"water": 10},
+            "🌳 Plant trees on sidewalk": {"vegetation": 10},
+            "🚗 Promote Electric Vehicles": {"energy": 10},
+            "🌆 Build indoor gardens": {"vegetation": 10},
+            "💡 Proper waste management": {"water": 10},
+        },
+        "Urban Eco-Hub": {
+            "🏙️ Install Vertical Gardens": {"vegetation": 10},
+            "🚰 Waste water management": {"water": 10},
+            "♻️ Implement Zero-waste Policy": {"water": 10},
+            "🔋 Use biogas": {"energy": 10},
+            "🏡 Install green roof": {"energy": 10},
+            "🌱 Community gardening": {"vegetation": 10},
+        }
+    }
 
-    # Ensure parameters stay within 0-100 range after performing the action
+    # Get the specific impact for the selected action in the given community
+    if action in community_impacts[plot_type]:
+        for key, value in community_impacts[plot_type][action].items():
+            ecosystem[key] += value
+
+    # Ensure ecosystem parameters stay within 0-100 range after the action
     for key in ecosystem:
         ecosystem[key] = max(0, min(100, ecosystem[key]))
 
     return ecosystem
 
-def calculate_score(ecosystem):
+def calculate_score(ecosystem): 
     """
     Calculate the score based on the current state of the ecosystem.
     
@@ -134,10 +155,8 @@ def calculate_score(ecosystem):
     score = (
         ecosystem['vegetation'] +
         ecosystem['water'] +
-        ecosystem['energy'] +
-        ecosystem['biodiversity'] +
-        ecosystem['sustainability']
-    ) // 5  # Average score
+        ecosystem['energy']
+    ) // 3  # Average score based on 3 parameters
     return score
 
 def get_ecosystem_status(ecosystem):
@@ -150,9 +169,11 @@ def get_ecosystem_status(ecosystem):
     Returns:
         str: Status message indicating the overall health of the ecosystem.
     """
-    if ecosystem['sustainability'] > 80:
-        return "Your ecosystem is thriving! 🌟"
-    elif ecosystem['sustainability'] > 50:
-        return "Your ecosystem is doing well. Keep it up! 👍"
+    avg_score = calculate_score(ecosystem)
+
+    if avg_score > 80:
+        return "Your solarpunk world is thriving! 🌟"
+    elif avg_score > 50:
+        return "Your solarpunk world is doing well. Keep it up! 👍"
     else:
-        return "Your ecosystem needs attention! ⚠️"
+        return "Your solarpunk world needs attention! ⚠️"

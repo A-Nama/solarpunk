@@ -16,7 +16,7 @@ st.markdown("""
         position: absolute;
         top: 10px;
         right: 10px;
-        width: 75px; /* Adjust size if needed */
+        width: 100px; /* Adjust size if needed */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -31,7 +31,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
 # Initialize session state for ecosystem and game
 if 'ecosystem' not in st.session_state:
     st.session_state.ecosystem = None
@@ -39,7 +38,8 @@ if 'game_started' not in st.session_state:
     st.session_state.game_started = False
 if 'selected_plot_type' not in st.session_state:
     st.session_state.selected_plot_type = "Default Community" 
-
+if 'plot_type' not in st.session_state:
+    st.session_state.plot_type = "Default Community"
 
 
 # Function to set background based on selected community type
@@ -78,7 +78,7 @@ if not st.session_state.game_started:
 
     # User input for country code
     st.markdown("### Enter your country code:")
-    country_code = st.text_input("Enter Country Code (e.g., IND)", value="IND")  # Default to India
+    country_code = st.text_input("Enter Country Code (e.g., IND)", value="USA")  # Default set as USA
 
     # User input for date
     start_date = st.date_input("Start Date").strftime("%Y-%m-%d")
@@ -89,7 +89,7 @@ if not st.session_state.game_started:
         st.session_state.ecosystem = initialize_ecosystem(plot_type)
         st.session_state.plot_type = plot_type
         st.session_state.start_date = start_date  # Save start date
-        st.session_state.end_date = end_date
+        st.session_state.end_date = end_date #Save end date
         st.session_state.country_code = country_code  # Save country code
         st.session_state.selected_plot_type = plot_type  # Save selected plot type
         st.session_state.game_started = True
@@ -153,36 +153,57 @@ else:
 
     # Player Interaction Section
     st.markdown("#### Actions to improve your ecosystem:")
-    col1, col2, col3 = st.columns(3)
 
+# Get the selected plot type from session state
+plot_type = st.session_state.plot_type
+
+# Define the community actions for Forest Village, Solar City, and Urban Eco-Hub
+community_actions = {
+    "Forest Village": ["🌱 Organic farming", "🍃 Create Biogas from Compost", "💧 Build Rainwater Harvesting System", "🚰 Reuse grey water", "♻️ Use renewable energy", "🚲 Walk or Cycle as much as possible"],
+    "Solar City": ["⚡ Install Solar Panels", "🔋 Use Hydrogen as fuel", "🌳 Plant trees on sidewalk", "🚗 Promote Electric Vehicles", "🌆 Build indoor gardens", "💡 Proper waste management"],
+    "Urban Eco-Hub": ["🏙️ Install Vertical Gardens", "🚰 Waste water management", "♻️ Implement Zero-waste Policy", "🔋 Use biogas", "🏡 Install green roof", "🌱 Community gardening"],
+}
+
+# Display community-specific actions for the user
+selected_actions = community_actions.get(st.session_state.plot_type)  
+
+# Dynamically create buttons for the selected actions
+col1, col2, col3 = st.columns(3)
+
+if selected_actions:
     with col1:
-        if st.button("🌱 Plant Trees"):
-            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, "Plant Trees")
-            st.success("🌳 You've planted new trees to increase vegetation!")
+        if st.button(selected_actions[0]):
+            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[0], plot_type)
+            st.success(f"{selected_actions[0]} performed!")
 
     with col2:
-        if st.button("⚡ Install Solar Panels"):
-            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, "Install Solar Panels")
-            st.success("🔋 Solar energy production has increased!")
+        if st.button(selected_actions[1]):
+            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[1], plot_type)
+            st.success(f"{selected_actions[1]} performed!")
 
     with col3:
-        if st.button("💧 Build Rainwater Harvesting System"):
-            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, "Build Rainwater Harvesting System")
-            st.success("🌧️ You've improved water management!")
+        if st.button(selected_actions[2]):
+            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[2], plot_type)
+            st.success(f"{selected_actions[2]} performed!")
 
-    # Optional: Additional Actions
-    st.markdown("#### Additional Actions:")
-    col4, col5 = st.columns(2)
+    # Repeat the same for more actions 
+    col4, col5, col6 = st.columns(3)
 
     with col4:
-        if st.button("🌿 Upgrade to Vertical Gardens"):
-            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, "Upgrade to Vertical Gardens")
-            st.success("🌾 Vertical gardens have been established!")
+        if st.button(selected_actions[3]):
+            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[3], plot_type)
+            st.success(f"{selected_actions[3]} performed!")
 
     with col5:
-        if st.button("💨 Implement Wind Turbines"):
-            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, "Implement Wind Turbines")
-            st.success("🌬️ Wind energy production has increased!")
+        if st.button(selected_actions[4]):
+            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[4], plot_type)
+            st.success(f"{selected_actions[4]} performed!")
+
+    with col6:
+        if st.button(selected_actions[5]):
+            st.session_state.ecosystem = perform_action(st.session_state.ecosystem, selected_actions[5], plot_type)
+            st.success(f"{selected_actions[5]} performed!")
+
 
     # Calculate and display score
     score = calculate_score(st.session_state.ecosystem)
