@@ -47,4 +47,3 @@ def fetch_globe_data(start_date, end_date, country_code, protocol):
     except requests.RequestException as e:
         print(f"Error fetching data from GLOBE API: {e}")
         return {}
-
