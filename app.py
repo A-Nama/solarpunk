@@ -9,6 +9,29 @@ from game_logic import (
 )
 from visualization import plot_solarpunk_ecosystem
 
+# CSS to style the page and position the logo
+st.markdown(""" 
+    <style>
+    .logo {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 75px; /* Adjust size if needed */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Add the logo from an external hosted link 
+st.markdown(
+    f"""
+    <div class="logo">
+        <img src="https://i.imgur.com/Odnb5GX.png" alt="Solarpunk_Logo">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
 # Initialize session state for ecosystem and game
 if 'ecosystem' not in st.session_state:
     st.session_state.ecosystem = None
@@ -16,6 +39,8 @@ if 'game_started' not in st.session_state:
     st.session_state.game_started = False
 if 'selected_plot_type' not in st.session_state:
     st.session_state.selected_plot_type = "Default Community" 
+
+
 
 # Function to set background based on selected community type
 def set_background(plot_type):
