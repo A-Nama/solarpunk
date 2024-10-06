@@ -16,7 +16,7 @@ st.markdown("""
         position: absolute;
         top: 10px;
         right: 10px;
-        width: 100px; /* Adjust size if needed */
+        width: 75px; /* Adjust size if needed */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -25,7 +25,7 @@ st.markdown("""
 st.markdown(
     f"""
     <div class="logo">
-        <img src="https://i.imgur.com/oEyNsnj.jpeg" alt="Solarpunk_Logo">
+        <img src="https://i.imgur.com/Odnb5GX.png" alt="Solarpunk_Logo">
     </div>
     """,
     unsafe_allow_html=True
