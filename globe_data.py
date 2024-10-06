@@ -1,62 +1,50 @@
 import requests
 
-# GLOBE API endpoint for fetching environmental data
-GLOBE_API_URL = "https://api.globe.gov/search/v1/measurements"
-
-# Function to fetch GLOBE data based on user location or specific parameters
-def fetch_globe_data(lat=None, lon=None, start_date=None, end_date=None):
+# Function to fetch GLOBE data dynamically based on lat, lon, and protocols
+def fetch_globe_data(lat, lon, start_date, end_date, protocol):
     """
-    Fetch GLOBE data from the GLOBE API based on the user's location and date range.
+    Fetch environmental data from the GLOBE API based on latitude, longitude, and date range.
     
     Parameters:
         lat (float): Latitude of the location.
         lon (float): Longitude of the location.
-        start_date (str): Start date for the query (YYYY-MM-DD).
-        end_date (str): End date for the query (YYYY-MM-DD).
-        
+        start_date (str): Start date for data in the format YYYY-MM-DD.
+        end_date (str): End date for data in the format YYYY-MM-DD.
+        protocol (str): The protocol for which data is fetched ('air_temperature', 'precipitation', 'vegetation').
+
     Returns:
-        dict: Dictionary of relevant environmental data (air_temperature, precipitation, cloud_coverage).
+        dict: Environmental data fetched from the GLOBE API.
     """
     
-    # Set up parameters for the API request
+    # Define the base URL
+    base_url = f"https://api.globe.gov/search/v1/measurement/protocol/{protocol}/measureddates"
+    
+    # Set query parameters
     params = {
-        'latitude': lat,           # Optional: Latitude for the player's location
-        'longitude': lon,          # Optional: Longitude for the player's location
-        'startdate': start_date,   # Optional: Start date for the data range
-        'enddate': end_date,       # Optional: End date for the data range
-        'offset': 0,               # Start from the first record
-        'limit': 10,               # Limit the data to a manageable size
-        'geojson': 'false'         # We're not interested in geojson, just the raw data
+        'startdate': start_date,
+        'enddate': end_date,
+        'latitude': lat,
+        'longitude': lon,
+        'geojson': 'FALSE'
     }
-
+    
     try:
-        # Send request to the GLOBE API
-        response = requests.get(GLOBE_API_URL, params=params)
-        response.raise_for_status()  # Raise an exception for any HTTP errors
-        data = response.json()       # Parse the JSON response
+        # Make the request to GLOBE API
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
 
-        # Example structure of the returned data:
-        measurements = data.get("results", [])
+        data = response.json()
 
-        # Extract relevant data fields for ecosystem simulation
-        relevant_data = {
-            'air_temperature': [],
-            'precipitation': [],
-            'cloud_coverage': [],
-        }
-
-        # Iterate over the results and extract important environmental data
-        for measurement in measurements:
-            if 'airTemperature' in measurement:
-                relevant_data['air_temperature'].append(measurement['airTemperature'])
-            if 'precipitation' in measurement:
-                relevant_data['precipitation'].append(measurement['precipitation'])
-            if 'cloudCover' in measurement:
-                relevant_data['cloud_coverage'].append(measurement['cloudCover'])
-
-        # Return the extracted data as a dictionary
-        return relevant_data
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching GLOBE data: {e}")
-        return None
+        if 'results' in data and data['results']:
+            # Extract relevant data points from the response, depending on the protocol
+            if protocol == 'air_temperature':
+                return {'air_temperature': [d['measurement']['airTemperature'] for d in data['results'] if 'measurement' in d and 'airTemperature' in d['measurement']]}
+            elif protocol == 'precipitation':
+                return {'precipitation': [d['measurement']['precipitation'] for d in data['results'] if 'measurement' in d and 'precipitation' in d['measurement']]}
+            elif protocol == 'vegetation':
+                return {'vegetation_cover': [d['measurement']['landCover'] for d in data['results'] if 'measurement' in d and 'landCover' in d['measurement']]}
+        else:
+            return {}
+    except requests.RequestException as e:
+        print(f"Error fetching data from GLOBE API: {e}")
+        return {}

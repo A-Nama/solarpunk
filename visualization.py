@@ -1,8 +1,15 @@
-import streamlit as st
 import matplotlib.pyplot as plt
+import streamlit as st
 
-def plot_solarpunk_ecosystem(veg, water, energy):
-    st.write("Ecosystem Overview:")
-    data = {"Vegetation": veg, "Water Resources": water, "Renewable Energy": energy}
+def plot_solarpunk_ecosystem(vegetation, water, energy):
+    labels = ['Vegetation', 'Water', 'Energy']
+    values = [vegetation, water, energy]
+
+    fig, ax = plt.subplots()
+    ax.bar(labels, values, color=['green', 'blue', 'yellow'])
     
-    st.bar_chart(data)
+    ax.set_ylim(0, 100)
+    ax.set_ylabel('Levels (%)')
+    ax.set_title('Solarpunk Ecosystem Health')
+    
+    st.pyplot(fig)

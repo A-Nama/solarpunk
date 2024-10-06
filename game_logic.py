@@ -2,15 +2,6 @@ import requests
 from globe_data import fetch_globe_data  # Import the fetch_globe_data method
 
 def initialize_ecosystem(plot_type):
-    """
-    Initialize the ecosystem parameters based on the type of plot chosen.
-    
-    Parameters:
-        plot_type (str): Type of the plot (e.g., "Forest Village", "Solar City", "Urban Eco-Hub").
-    
-    Returns:
-        dict: Initial ecosystem parameters.
-    """
     ecosystem = {
         'vegetation': 50,
         'water': 50,
@@ -50,9 +41,14 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
     if not globe_data:
         return ecosystem  # Return the current ecosystem if no globe data is provided
 
-    # Adjust vegetation and water based on air temperature
-    if 'air_temperature' in globe_data and globe_data['air_temperature']:
-        air_temp = globe_data['air_temperature'][-1]  # Assuming latest is last
+    # Extracting data for air temperature, precipitation, and vegetation cover from the GLOBE data
+    air_temp_data = globe_data.get('air_temperature', {})
+    precipitation_data = globe_data.get('precipitation', {})
+    vegetation_data = globe_data.get('vegetation', {})
+
+    # Adjust vegetation, water, and energy based on air temperature data
+    if air_temp_data and 'measurements' in air_temp_data:
+        air_temp = air_temp_data['measurements'][-1]  # Use the latest air temperature
         if air_temp > 35:
             ecosystem['vegetation'] -= 10
             ecosystem['water'] -= 5
@@ -65,10 +61,10 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
             ecosystem['vegetation'] += 5
             ecosystem['water'] += 2
             ecosystem['energy'] += 2
-    
-    # Adjust based on precipitation data
-    if 'precipitation' in globe_data and globe_data['precipitation']:
-        precipitation = globe_data['precipitation'][-1]  # Latest precipitation
+
+    # Adjust water and sustainability based on precipitation data
+    if precipitation_data and 'measurements' in precipitation_data:
+        precipitation = precipitation_data['measurements'][-1]  # Use the latest precipitation data
         if precipitation > 100:
             ecosystem['water'] += 20
             ecosystem['sustainability'] += 5
@@ -77,24 +73,23 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
             ecosystem['sustainability'] -= 5
         else:
             ecosystem['water'] += 5
-        
-    # Adjust based on cloud coverage
-    if 'cloud_coverage' in globe_data and globe_data['cloud_coverage']:
-        cloud_cover = globe_data['cloud_coverage'][-1]  # Latest cloud cover
-        if cloud_cover > 80:
-            ecosystem['energy'] -= 10
-            ecosystem['sustainability'] -= 5
-        elif cloud_cover < 20:
-            ecosystem['energy'] += 10
-            ecosystem['sustainability'] += 5
+
+    # Adjust vegetation based on vegetation cover data
+    if vegetation_data and 'measurements' in vegetation_data:
+        vegetation_cover = vegetation_data['measurements'][-1]  # Use the latest vegetation cover data
+        if vegetation_cover < 30:
+            ecosystem['vegetation'] -= 10
+        elif vegetation_cover > 70:
+            ecosystem['vegetation'] += 10
         else:
-            ecosystem['energy'] += 2
-    
-    # Ensure parameters stay within 0-100 range
+            ecosystem['vegetation'] += 5
+
+    # Ensure ecosystem parameters stay within 0-100 range
     for key in ecosystem:
         ecosystem[key] = max(0, min(100, ecosystem[key]))
     
     return ecosystem
+
 
 def perform_action(ecosystem, action):
     """
@@ -161,4 +156,3 @@ def get_ecosystem_status(ecosystem):
         return "Your ecosystem is doing well. Keep it up! 👍"
     else:
         return "Your ecosystem needs attention! ⚠️"
-
