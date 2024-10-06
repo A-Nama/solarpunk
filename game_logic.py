@@ -5,23 +5,21 @@ def initialize_ecosystem(plot_type):
     ecosystem = {
         'vegetation': 50,
         'water': 50,
-        'energy': 50,
-        'biodiversity': 50,
-        'water': 50
+        'weather': 50,
     }
     
     # Adjust initial parameters based on plot type
     if plot_type == "Forest Village":
         ecosystem['vegetation'] += 20
         ecosystem['water'] += 10
-        ecosystem['energy'] -= 10
+        ecosystem['weather'] -= 10
     elif plot_type == "Solar City":
-        ecosystem['energy'] += 20
+        ecosystem['weather'] += 20
         ecosystem['water'] -= 10
         ecosystem['vegetation'] -= 10
     elif plot_type == "Urban Eco-Hub":
         ecosystem['water'] += 15
-        ecosystem['energy'] += 10
+        ecosystem['weather'] += 10
         ecosystem['water'] += 5
     
     return ecosystem
@@ -41,54 +39,50 @@ def simulate_solarpunk_ecosystem(ecosystem, globe_data):
     if not globe_data:
         return ecosystem  # Return the current ecosystem if no globe data is provided
 
-    # Extracting data for air temperature, precipitation, and vegetation cover from the GLOBE data
+    # Extracting data for air temperature, precipitation, and soil pH from the GLOBE data
     air_temp_data = globe_data.get('air_temperature', {})
     precipitation_data = globe_data.get('precipitation', {})
-    vegetation_data = globe_data.get('vegetation', {})
+    soil_ph_data = globe_data.get('soil_ph', {})
 
-    # Adjust vegetation, water, and energy based on air temperature data
+    # Adjust water and weather based on air temperature data
     if air_temp_data and 'measurements' in air_temp_data:
-        air_temp = air_temp_data['measurements'][-1]  # Use the latest air temperature
+        air_temp = air_temp_data[-1]  # Use the latest air temperature
         if air_temp > 35:
-            ecosystem['vegetation'] -= 10
             ecosystem['water'] -= 5
-            ecosystem['energy'] += 5
+            ecosystem['weather'] += 5
         elif air_temp < 15:
-            ecosystem['vegetation'] -= 5
             ecosystem['water'] += 5
-            ecosystem['energy'] -= 5
+            ecosystem['weather'] -= 5
         else:
-            ecosystem['vegetation'] += 5
             ecosystem['water'] += 2
-            ecosystem['energy'] += 2
+            ecosystem['weather'] += 2
 
-    # Adjust water and water based on precipitation data
+    # Adjust water based on precipitation data
     if precipitation_data and 'measurements' in precipitation_data:
-        precipitation = precipitation_data['measurements'][-1]  # Use the latest precipitation data
+        precipitation = precipitation_data[-1]  # Use the latest precipitation data
         if precipitation > 100:
             ecosystem['water'] += 20
-            ecosystem['water'] += 5
         elif precipitation < 20:
             ecosystem['water'] -= 10
-            ecosystem['water'] -= 5
         else:
             ecosystem['water'] += 5
 
-    # Adjust vegetation based on vegetation cover data
-    if vegetation_data and 'measurements' in vegetation_data:
-        vegetation_cover = vegetation_data['measurements'][-1]  # Use the latest vegetation cover data
-        if vegetation_cover < 30:
-            ecosystem['vegetation'] -= 10
-        elif vegetation_cover > 70:
-            ecosystem['vegetation'] += 10
+    # Adjust water based on soil pH data
+    if soil_ph_data and 'measurements' in soil_ph_data:
+        soil_ph = soil_ph_data[-1]  # Use the latest soil pH data
+        if soil_ph < 5.5:
+            ecosystem['water'] -= 10  # Too acidic
+        elif soil_ph > 7.5:
+            ecosystem['water'] -= 5   # Too alkaline
         else:
-            ecosystem['vegetation'] += 5
+            ecosystem['water'] += 5    # Optimal pH
 
     # Ensure ecosystem parameters stay within 0-100 range
     for key in ecosystem:
         ecosystem[key] = max(0, min(100, ecosystem[key]))
     
     return ecosystem
+
 
 
 def perform_action(ecosystem, action, plot_type):
@@ -110,14 +104,14 @@ def perform_action(ecosystem, action, plot_type):
             "🍃 Create Biogas from Compost": {"vegetation": 10},
             "💧 Build Rainwater Harvesting System": {"water": 10},
             "🚰 Reuse grey water": {"water": 10},
-            "♻️ Use renewable energy": {"energy": 10},
-            "🚲 Walk or Cycle as much as possible": {"energy": 10},
+            "♻️ Use renewable weather": {"weather": 10},
+            "🚲 Walk or Cycle as much as possible": {"weather": 10},
         },
         "Solar City": {
-            "⚡ Install Solar Panels": {"energy": 10},
+            "⚡ Install Solar Panels": {"weather": 10},
             "🔋 Use Hydrogen as fuel": {"water": 10},
             "🌳 Plant trees on sidewalk": {"vegetation": 10},
-            "🚗 Promote Electric Vehicles": {"energy": 10},
+            "🚗 Promote Electric Vehicles": {"weather": 10},
             "🌆 Build indoor gardens": {"vegetation": 10},
             "💡 Proper waste management": {"water": 10},
         },
@@ -125,8 +119,8 @@ def perform_action(ecosystem, action, plot_type):
             "🏙️ Install Vertical Gardens": {"vegetation": 10},
             "🚰 Waste water management": {"water": 10},
             "♻️ Implement Zero-waste Policy": {"water": 10},
-            "🔋 Use biogas": {"energy": 10},
-            "🏡 Install green roof": {"energy": 10},
+            "🔋 Use biogas": {"weather": 10},
+            "🏡 Install green roof": {"weather": 10},
             "🌱 Community gardening": {"vegetation": 10},
         }
     }
@@ -155,7 +149,7 @@ def calculate_score(ecosystem):
     score = (
         ecosystem['vegetation'] +
         ecosystem['water'] +
-        ecosystem['energy']
+        ecosystem['weather']
     ) // 3  # Average score based on 3 parameters
     return score
 
